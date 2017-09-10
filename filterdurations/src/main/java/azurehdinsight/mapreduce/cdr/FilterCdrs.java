@@ -12,25 +12,25 @@ import org.apache.hadoop.util.GenericOptionsParser;
 /**
  * Created by Milan on 10-Sep-17.
  */
-public class ProcessLogs {
+public class FilterCdrs {
     public static void main(String[] args) throws Exception{
-
         Configuration conf = new Configuration();
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
         if (args.length != 2) {
             System.out.printf("Usage: ProcessLogs <inputDir> <outputDir>\n");
             System.exit(2);
         }
-        Job job = new Job(conf, "Process Cdr Logs");
-        job.setJarByClass(ProcessLogs.class);
+        Job job = new Job(conf, "Filter Call Duration");
+        job.setJarByClass(FilterCdrs.class);
 
         FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
         FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
 
-        job.setMapperClass(CdrMapper.class);
-        job.setReducerClass(SumReducer.class);
+        job.setMapperClass(CustomMapper.class);
+        job.setCombinerClass(FilterReducer.class);
+        job.setReducerClass(FilterReducer.class);
 
-        job.setMapOutputKeyClass(CdrWritable.class);
+        job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
 
         job.setOutputKeyClass(Text.class);
